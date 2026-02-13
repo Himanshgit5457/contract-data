@@ -29,7 +29,8 @@ export function useCompanies() {
       toast({ title: "Company created successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error creating company", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to create company. Please try again.", variant: "destructive" });
     },
   });
 
@@ -44,7 +45,8 @@ export function useCompanies() {
       toast({ title: "Company updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error updating company", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to update company. Please try again.", variant: "destructive" });
     },
   });
 
@@ -58,7 +60,8 @@ export function useCompanies() {
       toast({ title: "Company deleted successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error deleting company", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to delete company. Please try again.", variant: "destructive" });
     },
   });
 

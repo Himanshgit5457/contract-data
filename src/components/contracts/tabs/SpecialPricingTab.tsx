@@ -61,7 +61,7 @@ export function SpecialPricingTab({ contract }: Props) {
     } else {
       ({ error } = await supabase.from("pricing_special").insert(payload));
     }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: editRow ? "Updated" : "Added" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contract.id] });
     setShowForm(false);

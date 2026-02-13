@@ -29,7 +29,8 @@ export function useContracts() {
       toast({ title: "Contract created successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error creating contract", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to create contract. Please try again.", variant: "destructive" });
     },
   });
 
@@ -44,7 +45,8 @@ export function useContracts() {
       toast({ title: "Contract updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error updating contract", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to update contract. Please try again.", variant: "destructive" });
     },
   });
 
@@ -58,7 +60,8 @@ export function useContracts() {
       toast({ title: "Contract deleted successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: "Error deleting contract", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to delete contract. Please try again.", variant: "destructive" });
     },
   });
 
