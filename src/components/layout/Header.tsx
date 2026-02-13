@@ -1,5 +1,7 @@
-import { Plane, Sun, Moon } from "lucide-react";
+import { Plane, Sun, Moon, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   activeTab: string;
@@ -7,7 +9,13 @@ interface HeaderProps {
 }
 
 export function Header({ activeTab, onTabChange }: HeaderProps) {
+  const navigate = useNavigate();
   const toggleDark = () => document.documentElement.classList.toggle("dark");
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
     <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-50">
@@ -38,10 +46,15 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
           ))}
         </nav>
 
-        <Button variant="ghost" size="icon" onClick={toggleDark} className="rounded-lg">
-          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={toggleDark} className="rounded-lg">
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-lg text-muted-foreground hover:text-destructive">
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </header>
   );
