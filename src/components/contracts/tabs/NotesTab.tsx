@@ -43,7 +43,8 @@ export function NotesTab({ contract }: Props) {
       ({ error } = await supabase.from("contract_notes").insert({ contract_id: contract.id, content }));
     }
     if (error) {
-      toast({ title: "Error saving", description: error.message, variant: "destructive" });
+      console.error("Database error:", error);
+      toast({ title: "Operation failed", description: "Unable to save notes. Please try again.", variant: "destructive" });
       setSaveStatus("unsaved");
     } else {
       setSaveStatus("saved");

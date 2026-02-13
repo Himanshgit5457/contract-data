@@ -53,7 +53,7 @@ function ParamSection({ title, icon: Icon, tableName, data, contractId, subContr
     } else {
       ({ error } = await supabase.from(tableName).insert(payload as any));
     }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: editRow ? "Updated" : "Added" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contractId] });
     setShowForm(false);
@@ -152,7 +152,7 @@ function AgeSection({ data, contractId, subContractId }: { data: any[]; contract
       min_age: parseInt(formData.min_age),
       max_age: formData.max_age ? parseInt(formData.max_age) : null,
     }).eq("id", editRow.id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: "Updated" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contractId] });
     setEditRow(null);
@@ -219,7 +219,7 @@ function AddonsSection({ data, contractId, subContractId }: { data: any[]; contr
     let error;
     if (editRow) { ({ error } = await supabase.from("contract_addons").update(payload).eq("id", editRow.id)); }
     else { ({ error } = await supabase.from("contract_addons").insert(payload)); }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contractId] });
     setShowForm(false);
   };
@@ -277,7 +277,7 @@ function InsuranceSection({ data, contractId, subContractId }: { data: any[]; co
     let error;
     if (insurance) { ({ error } = await supabase.from("contract_insurance").update(payload).eq("id", insurance.id)); }
     else { ({ error } = await supabase.from("contract_insurance").insert(payload)); }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: "Saved" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contractId] });
   };
@@ -314,7 +314,7 @@ function GovChargesSection({ data, contractId, subContractId }: { data: any[]; c
     let error;
     if (charge) { ({ error } = await supabase.from("contract_government_charges").update(payload).eq("id", charge.id)); }
     else { ({ error } = await supabase.from("contract_government_charges").insert(payload)); }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: "Saved" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contractId] });
   };

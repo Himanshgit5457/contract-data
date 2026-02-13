@@ -76,7 +76,7 @@ export function StandardPricingTab({ contract }: Props) {
     } else {
       ({ error } = await supabase.from("pricing_standard").insert(payload));
     }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to save changes. Please try again.", variant: "destructive" }); return; }
     toast({ title: editRow ? "Pricing updated" : "Pricing added" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contract.id] });
     setShowForm(false);
@@ -84,7 +84,7 @@ export function StandardPricingTab({ contract }: Props) {
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("pricing_standard").delete().eq("id", id);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { console.error("Database error:", error); toast({ title: "Operation failed", description: "Unable to delete. Please try again.", variant: "destructive" }); return; }
     toast({ title: "Pricing deleted" });
     queryClient.invalidateQueries({ queryKey: ["contract-detail", contract.id] });
   };
