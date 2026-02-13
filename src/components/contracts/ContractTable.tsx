@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useContracts } from "@/hooks/useContracts";
+import { useTableSettings } from "@/hooks/useTableSettings";
 import { format } from "date-fns";
 import { KPICards } from "./KPICards";
 import { ContractForm } from "./ContractForm";
@@ -28,6 +29,8 @@ function getStatus(start: string, end: string) {
 
 export function ContractTable() {
   const { data: contracts, isLoading, deleteMutation } = useContracts();
+  const { getVisibleColumns } = useTableSettings();
+  const columns = getVisibleColumns("contracts");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -48,6 +51,33 @@ export function ContractTable() {
       return matchesSearch && matchesStatus && matchesType;
     });
   }, [contracts, search, statusFilter, typeFilter]);
+
+  const getCellValue = (contract: any, key: string) => {
+    switch (key) {
+      case "contract_code":
+        return <span className="font-medium text-primary">{contract.contract_code}</span>;
+      case "resort":
+        return contract.resort?.name || "—";
+      case "group":
+        return contract.group?.name || "—";
+      case "sub_contract_type":
+        return <Badge variant="secondary">{contract.sub_contract_type || "—"}</Badge>;
+      case "start_date":
+        return format(new Date(contract.start_date), "dd MMM yyyy");
+      case "end_date":
+        return format(new Date(contract.end_date), "dd MMM yyyy");
+      case "status": {
+        const status = getStatus(contract.start_date, contract.end_date);
+        return (
+          <span className={`status-badge ${status === "Active" ? "status-active" : status === "Expiring" ? "status-expiring" : "status-expired"}`}>
+            {status}
+          </span>
+        );
+      }
+      default:
+        return contract[key] || "—";
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -85,49 +115,36 @@ export function ContractTable() {
         <Table>
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
-              <TableHead className="font-semibold">Contract Code</TableHead>
-              <TableHead className="font-semibold">Resort</TableHead>
-              <TableHead className="font-semibold">Group</TableHead>
-              <TableHead className="font-semibold">Type</TableHead>
-              <TableHead className="font-semibold">Start Date</TableHead>
-              <TableHead className="font-semibold">End Date</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
+              {columns.map((col) => (
+                <TableHead key={col.key} className="font-semibold">{col.label}</TableHead>
+              ))}
               <TableHead className="font-semibold w-28">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}><TableCell colSpan={8}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
+                <TableRow key={i}><TableCell colSpan={columns.length + 1}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
               ))
             ) : filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No contracts found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={columns.length + 1} className="text-center py-12 text-muted-foreground">No contracts found.</TableCell></TableRow>
             ) : (
-              filtered.map((contract) => {
-                const status = getStatus(contract.start_date, contract.end_date);
-                return (
-                  <TableRow key={contract.id} className="data-table-row" onClick={() => setViewContractId(contract.id)}>
-                    <TableCell className="font-medium text-primary">{contract.contract_code}</TableCell>
-                    <TableCell>{contract.resort?.name || "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{contract.group?.name || "—"}</TableCell>
-                    <TableCell><Badge variant="secondary">{contract.sub_contract_type || "—"}</Badge></TableCell>
-                    <TableCell className="text-muted-foreground">{format(new Date(contract.start_date), "dd MMM yyyy")}</TableCell>
-                    <TableCell className="text-muted-foreground">{format(new Date(contract.end_date), "dd MMM yyyy")}</TableCell>
-                    <TableCell>
-                      <span className={`status-badge ${status === "Active" ? "status-active" : status === "Expiring" ? "status-expiring" : "status-expired"}`}>
-                        {status}
-                      </span>
+              filtered.map((contract) => (
+                <TableRow key={contract.id} className="data-table-row" onClick={() => setViewContractId(contract.id)}>
+                  {columns.map((col) => (
+                    <TableCell key={col.key} className="text-muted-foreground">
+                      {getCellValue(contract, col.key)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewContractId(contract.id)}><Eye className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditContract(contract); setShowForm(true); }}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteContract(contract)}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+                  ))}
+                  <TableCell>
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewContractId(contract.id)}><Eye className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditContract(contract); setShowForm(true); }}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteContract(contract)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
