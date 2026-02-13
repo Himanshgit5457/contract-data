@@ -7,11 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCompanies } from "@/hooks/useCompanies";
+import { useTableSettings } from "@/hooks/useTableSettings";
 import { CompanyForm } from "./CompanyForm";
 import { CompanyDeleteDialog } from "./CompanyDeleteDialog";
 
 export function CompanyTable() {
   const { data: companies, isLoading } = useCompanies();
+  const { getVisibleColumns } = useTableSettings();
+  const columns = getVisibleColumns("companies");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [editCompany, setEditCompany] = useState<any>(null);
@@ -28,6 +31,17 @@ export function CompanyTable() {
       return matchesSearch && matchesType;
     });
   }, [companies, search, typeFilter]);
+
+  const getCellValue = (company: any, key: string) => {
+    if (key === "type") {
+      return (
+        <Badge variant={company.type === "Group" ? "default" : "secondary"} className={company.type === "Group" ? "bg-primary/20 text-primary border-0" : "bg-success/20 text-success border-0"}>
+          {company.type}
+        </Badge>
+      );
+    }
+    return company[key] || "—";
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -60,33 +74,27 @@ export function CompanyTable() {
         <Table>
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
-              <TableHead className="text-muted-foreground font-semibold">Name</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Type</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Address</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Registration No.</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">Coordinates</TableHead>
+              {columns.map((col) => (
+                <TableHead key={col.key} className="text-muted-foreground font-semibold">{col.label}</TableHead>
+              ))}
               <TableHead className="text-muted-foreground font-semibold w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
+                <TableRow key={i}><TableCell colSpan={columns.length + 1}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
               ))
             ) : filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-center py-12 text-muted-foreground">No companies found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={columns.length + 1} className="text-center py-12 text-muted-foreground">No companies found.</TableCell></TableRow>
             ) : (
               filtered.map((company) => (
                 <TableRow key={company.id} className="data-table-row">
-                  <TableCell className="font-medium">{company.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={company.type === "Group" ? "default" : "secondary"} className={company.type === "Group" ? "bg-primary/20 text-primary border-0" : "bg-success/20 text-success border-0"}>
-                      {company.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground max-w-[200px] truncate">{company.address || "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{company.registration_no || "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{company.coordinates || "—"}</TableCell>
+                  {columns.map((col) => (
+                    <TableCell key={col.key} className={col.key === "name" ? "font-medium" : col.key === "address" ? "text-muted-foreground max-w-[200px] truncate" : "text-muted-foreground"}>
+                      {getCellValue(company, col.key)}
+                    </TableCell>
+                  ))}
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditCompany(company); setShowForm(true); }}><Pencil className="h-4 w-4" /></Button>

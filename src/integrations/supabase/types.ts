@@ -636,6 +636,36 @@ export type Database = {
           },
         ]
       }
+      table_settings: {
+        Row: {
+          column_config: Json
+          created_at: string
+          id: string
+          table_name: string
+          updated_at: string
+          user_id: string
+          visible: boolean
+        }
+        Insert: {
+          column_config?: Json
+          created_at?: string
+          id?: string
+          table_name: string
+          updated_at?: string
+          user_id: string
+          visible?: boolean
+        }
+        Update: {
+          column_config?: Json
+          created_at?: string
+          id?: string
+          table_name?: string
+          updated_at?: string
+          user_id?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
