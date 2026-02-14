@@ -671,7 +671,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      exec_ddl: { Args: { sql_text: string }; Returns: undefined }
+      exec_query: { Args: { sql_text: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
